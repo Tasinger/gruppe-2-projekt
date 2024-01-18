@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 ﻿Datum,Bewoelkung,Temperatur,Windgeschwindigkeit,Wettercode
+=======
+Datum,Bewoelkung,Temperatur,Windgeschwindigkeit,Wettercode
+>>>>>>> 5ce27d789df254239744b5a1fca82c6be5369e0d
 2012-01-01,8,9.825,14,58
 2012-01-02,7,7.4375,12,
 2012-01-03,8,5.5375,18,63

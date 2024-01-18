@@ -1,0 +1,17 @@
+Goal:
+Develop a model that accurately predicts sales for six different bakery product categories: Bread, Rolls, Croissants, Confectionery, Cakes, and Seasonal Bread
+
+Dataset:
+Containing sales records from July 1, 2013, to July 30, 2018, encompassing various factors influencing bakery sales.
+
+1. Data-Preparation & Visualization
+2. Baseline linear regression model
+3. Evolve your approach to incorporate more complex machine learning or neural network methods for refined predictions
+
+
+Additional variables:
+seasonal variations, changing consumer preferences, and the introduction of new products
+
+
+Metric:
+Mean Absolute Percentage Error (A lower MAPE value indicates better predictive accuracy of the model)

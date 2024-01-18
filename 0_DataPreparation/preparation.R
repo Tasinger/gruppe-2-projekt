@@ -24,9 +24,9 @@ kiwo$Datum <- ymd(kiwo$Datum)
 # eigene Variablen
 schulferien$Datum <- ymd(schulferien$Datum)
 
-# die Feiertage sind als dd.mm.yyyy gespeichert, sollen aber als mm-dd-yyyy gespeichert werden
+# die Feiertage als Datum
 feiertage$Datum <- as.Date(feiertage$Datum, format = "%d.%m.%Y")
-feiertage$Datum_neues_format <- format(feiertage$Datum, "%m-%d-%Y")
+
 
 #Zusammenführen der Daten als Tibble und speichern in einer CSV-Datei
 merged_data <- umsatz %>%

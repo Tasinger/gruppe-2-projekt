@@ -28,7 +28,7 @@ schulferien$Datum <- ymd(schulferien$Datum)
 feiertage$Datum <- as.Date(feiertage$Datum, format = "%d.%m.%Y")
 
 
-#Zusammenführen der Daten als Tibble und speichern in einer CSV-Datei
+# Zusammenführen der Daten als Tibble und speichern in einer CSV-Datei
 merged_data <- umsatz %>%
   left_join(wetter, by = "Datum") %>%
   left_join(kiwo, by = "Datum") %>%
@@ -38,7 +38,10 @@ merged_data <- umsatz %>%
 ergebnis_tibble <- as_tibble(merged_data)
 write.csv(ergebnis_tibble, file="0_DataPreparation/joinedData.csv")
 
-#Erstellen eines linearen Models
+# Erstellen eines linearen Models
 mod <- lm(Umsatz ~ as.factor(Warengruppe)+Temperatur+KielerWoche, ergebnis_tibble)
 summary(mod)
 
+# Daten bereinigen und NaN ersetzen
+
+# Ergebnis speichern

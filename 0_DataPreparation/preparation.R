@@ -1,6 +1,18 @@
 # drei csv zusammenführen als tibble
 # Funktionen aus skimR und DataExplorer nutzen, um Daten in Tibble genauer anzusehen
 
+#Installieren von Packages falls, diese noch nicht installiert sind
+if (!require(tidyverse)) install.packages("tidyverse")
+if (!require(skimr)) install.packages("skimr")
+if (!require(DataExplorer)) install.packages("DataExplorer")
+if (!require(dplyr)) install.packages("dplyr")
+if (!require(lubridate)) install.packages("lubridate")
+if (!require(readr)) install.packages("readr")
+if (!require(VIM)) install.packages("VIM")
+if (!require(colorspace)) install.packages("colorspace")
+if (!require(grid)) install.packages("grid")
+if (!require(zoo)) install.packages("zoo")
+
 # Laden der Libraries
 library(tidyverse)
 library(skimr)

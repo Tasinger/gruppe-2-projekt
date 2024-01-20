@@ -8,6 +8,10 @@ library(DataExplorer)
 library(dplyr)
 library(lubridate)
 library(readr)
+library(VIM)
+library(colorspace)
+library(grid)
+library(zoo)
 
 # Einlesen der Daten
 kiwo <- read.csv("0_DataPreparation/kiwo.csv")
@@ -31,22 +35,41 @@ feiertage$Datum <- as.Date(feiertage$Datum, format = "%d.%m.%Y")
 
 
 # Zusammenführen der Daten als Tibble und speichern in einer CSV-Datei
-merged_data <- umsatz_train %>%
+merged_data_train <- umsatz_train %>%
   left_join(wetter, by = "Datum") %>%
   left_join(kiwo, by = "Datum") %>%
   left_join(feiertage, by = "Datum") %>%
   left_join(schulferien, by = "Datum")
 
-ergebnis_tibble <- as_tibble(merged_data)
-write.csv(ergebnis_tibble, file="0_DataPreparation/joinedData_train.csv")
+ergebnis_tibble_train <- as_tibble(merged_data_train)
+write.csv(ergebnis_tibble_train, file="0_DataPreparation/joinedData_train.csv")
 
+# Testdaten als Tibble zusammenfassen und speichern
+merged_data_test <- umsatz_test %>%
+  left_join(wetter, by = "Datum") %>%
+  left_join(kiwo, by = "Datum") %>%
+  left_join(feiertage, by = "Datum") %>%
+  left_join(schulferien, by = "Datum")
 
-
-test = read.csv("0_DataPreparation/joinedData_train.csv")
-# Erstellen eines linearen Models
-mod <- lm(Umsatz ~ as.factor(Warengruppe)+Temperatur+KielerWoche, ergebnis_tibble)
-summary(mod)
+ergebnis_tibble_test <- as_tibble(merged_data_test)
+write.csv(ergebnis_tibble_test, file="0_DataPreparation/joinedData_test.csv")
 
 # Daten bereinigen und NaN ersetzen
+train_data <- read.csv("0_DataPreparation/joinedData_train.csv")
+plot <- aggr(train_data, combined=TRUE, numbers=TRUE)
+print(plot)
+
+for (spalte in names(train_data)){
+  hat_nan <- any(is.na(train_data[[spalte]]))
+  print(spalte)
+  print(hat_nan)
+}
+
+train_data$KielerWoche <- ifelse(is.na(train_data$KielerWoche), 0, 1)
+train_data$Feiertag <- ifelse(is.na(train_data$Feiertag), 0, 1)
+train_data$Ferien <- ifelse(is.na(train_data$Ferien), 0, 1)
+
+train_data$Wettercode <- na.locf(train_data$Wettercode, fromLast = TRUE, na.rm = FALSE)
+print(train_data)
 
 # Ergebnis speichern

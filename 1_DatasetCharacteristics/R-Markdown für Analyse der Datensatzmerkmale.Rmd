@@ -1,5 +1,5 @@
 ---
-title: "R-Markdown Notebook für Analyse Datensatzmerkmale - Aufgabe Baseline Modell"
+title: "R-Markdown für Analyse der Datensatzmerkmale - Aufgabe Dateset Characterisristics"
 author: "Gruppe 2 - Alina und Lea"
 date: "2024-01-21"
 output: html_document

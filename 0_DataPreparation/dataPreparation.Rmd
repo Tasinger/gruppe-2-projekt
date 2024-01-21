@@ -1,0 +1,167 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+LIBRARIES
+```{r}
+if (!require(tidyverse)) install.packages("tidyverse")
+if (!require(skimr)) install.packages("skimr")
+if (!require(DataExplorer)) install.packages("DataExplorer")
+if (!require(dplyr)) install.packages("dplyr")
+if (!require(lubridate)) install.packages("lubridate")
+if (!require(readr)) install.packages("readr")
+if (!require(VIM)) install.packages("VIM")
+if (!require(colorspace)) install.packages("colorspace")
+if (!require(grid)) install.packages("grid")
+if (!require(zoo)) install.packages("zoo")
+
+# Laden der Libraries
+library(tidyverse)
+library(skimr)
+library(DataExplorer)
+library(dplyr)
+library(lubridate)
+library(readr)
+library(VIM)
+library(colorspace)
+library(grid)
+library(zoo)
+```
+
+Einlesen der Daten
+```{r}
+kiwo <- read.csv("kiwo.csv")
+wetter <- read.csv("wetter.csv")
+umsatz_train <- read.csv("train.csv")
+umsatz_test <- read.csv("test.csv")
+feiertage <- read.csv("Feiertage.csv", sep = ";")
+schulferien <- read.csv("Schulferien.csv")
+```
+
+Sicherstellen, dass Datum in allen Datensätzen gleiches Format
+```{r}
+umsatz_train$Datum <- ymd(umsatz_train$Datum)
+umsatz_test$Datum <- ymd(umsatz_test$Datum)
+wetter$Datum <- ymd(wetter$Datum)
+kiwo$Datum <- ymd(kiwo$Datum)
+schulferien$Datum <- ymd(schulferien$Datum)
+feiertage$Datum <- as.Date(feiertage$Datum, format = "%d.%m.%Y")
+```
+
+Hinzufügen der Spalte "wochentage"
+```{r}
+umsatz_train$wochentag <- weekdays(umsatz_train$Datum)
+umsatz_test$wochentag <- weekdays(umsatz_test$Datum)
+```
+
+Hinzufügen der Spalte "jahreszeit"
+```{r}
+yq <- as.yearqtr(as.yearmon(umsatz_train$Datum, "%m/%d/%Y") + 1/12)
+# Berechnung der Jahreszeit
+umsatz_train$jahreszeit <- factor(format(yq, "%q"), levels = 1:4, 
+      labels = c("Winter", "Frueling", "Sommer", "Herbst"))
+yq <- as.yearqtr(as.yearmon(umsatz_test$Datum, "%m/%d/%Y") + 1/12)
+# Berechnung der Jahreszeit
+umsatz_test$jahreszeit <- factor(format(yq, "%q"), levels = 1:4, 
+      labels = c("Winter", "Frueling", "Sommer", "Herbst"))
+rm(yq)
+```
+
+Hinzufügen der Spalte "monat"
+```{r}
+umsatz_train <- mutate(umsatz_train, monat = factor(format(Datum, "%m")))
+umsatz_test <- mutate(umsatz_test, monat = factor(format(Datum, "%m")))
+```
+
+Zusammenfügen der Datensätze und umwandeln der Variablen "Kielerwoche", "Feiertag" und "Ferien" in Boolean
+```{r}
+merged_data_train <- umsatz_train %>%
+  left_join(wetter, by = "Datum") %>%
+  left_join(kiwo, by = "Datum") %>%
+  left_join(feiertage, by = "Datum") %>%
+  left_join(schulferien, by = "Datum")
+# Umwandeln in Boolean
+merged_data_train$KielerWoche <- !is.na(merged_data_train$KielerWoche)
+merged_data_train$Feiertag <- !is.na(merged_data_train$Feiertag)
+merged_data_train$Ferien <- !is.na(merged_data_train$Ferien)
+merged_data_train <- as_tibble(merged_data_train)
+#Abspeichern
+write.csv(merged_data_train, file="joinedData_train.csv")
+```
+
+```{r}
+merged_data_test <- umsatz_test %>%
+  left_join(wetter, by = "Datum") %>%
+  left_join(kiwo, by = "Datum") %>%
+  left_join(feiertage, by = "Datum") %>%
+  left_join(schulferien, by = "Datum")
+# Umwandeln in Boolean
+merged_data_test$KielerWoche <- !is.na(merged_data_test$KielerWoche)
+merged_data_test$Feiertag <- !is.na(merged_data_test$Feiertag)
+merged_data_test$Ferien <- !is.na(merged_data_test$Ferien)
+merged_data_test <- as_tibble(merged_data_test)
+#Abspeichern
+write.csv(merged_data_test, file="joinedData_test.csv")
+```
+
+```{r}
+rm(feiertage)
+rm(wetter)
+rm(kiwo)
+rm(schulferien)
+rm(umsatz_train)
+rm(umsatz_test)
+```
+
+#train_data$Wettercode <- na.locf(train_data$Wettercode, fromLast = TRUE, na.rm = FALSE)
+
+```{r}
+train_data <- read.csv("joinedData_train.csv")
+plot <- aggr(train_data, combined=TRUE, numbers=TRUE)
+print(plot)
+```
+
+```{r}
+train_data <- hotdeck(train_data, imp_var = FALSE)
+```
+
+```{r}
+test_data <- read.csv("joinedData_test.csv")
+plot <- aggr(test_data, combined=TRUE, numbers=TRUE)
+print(plot)
+```
+
+```{r}
+test_data <- hotdeck(test_data, imp_var = FALSE)
+
+```
+
+Umwandeln der numerischen Variablen "Temperatur", "Windgeschwindigkeit" und "Wettercode" in Kategorien
+```{r}
+train_data$Windgeschwindigkeit_labels <- cut(train_data$Windgeschwindigkeit, breaks = c(0,10.7,20.7,37), labels=c("Brise", "Wind","Sturm"), right=FALSE)
+test_data$Windgeschwindigkeit_labels <- cut(test_data$Windgeschwindigkeit, breaks = c(0,10.7,20.7,37), labels=c("Brise", "Wind","Sturm"), right=FALSE)
+
+train_data$Temperatur <- as.numeric(as.character(train_data$Temperatur))
+train_data$Temperatur_labels <- cut(train_data$Temperatur, breaks = c(-20,1,11,21,31,45), labels=c("eisig", "kalt", "moderat", "sommerlich", "heiß"), right=FALSE)
+
+test_data$Temperatur <- as.numeric(as.character(test_data$Temperatur))
+test_data$Temperatur_labels <- cut(test_data$Temperatur, breaks = c(-20,1,11,21,31,45), labels=c("eisig", "kalt", "moderat", "sommerlich", "heiß"), right=FALSE)
+
+train_data$Wettercode <- as.numeric(as.character(train_data$Wettercode))
+train_data$Wettercode_labels <- cut(train_data$Wettercode, breaks = c(0,14,99), labels=c("Trocken","RegenGewitter"), right=FALSE)
+
+test_data$Wettercode <- as.numeric(as.character(test_data$Wettercode))
+test_data$Wettercode_labels <- cut(test_data$Wettercode, breaks = c(0,14,99), labels=c("Trocken","RegenGewitter"), right=FALSE)
+```
+

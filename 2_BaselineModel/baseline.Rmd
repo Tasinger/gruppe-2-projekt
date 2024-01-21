@@ -1,0 +1,156 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+# Laden der Libraries
+library(readr)
+library(lubridate)
+library(ggplot2)
+library(dplyr)
+library(broom)
+library(Metrics)
+```
+
+```{r}
+data <- read.csv("../0_DataPreparation/preparedTrainData.csv")
+data <- data %>% arrange(Datum)
+
+```
+
+```{r}
+data_shuffled <- data %>% sample_frac(1)
+```
+
+
+```{r}
+# Calculate the number of rows for each dataset
+n_total <- nrow(data)
+n_train <- floor(0.7 * n_total)
+n_validation <- floor(0.20 * n_total)
+# Teile die Daten in Trainings-, Validierungs- und Testdaten auf
+train_data <- data %>% slice(1:n_train)
+validation_data <- data %>% slice((n_train + 1):(n_train + n_validation))
+test_data <- data %>% slice((n_train + n_validation + 1):n_total)
+# Dimensionen
+cat("Trainingsdaten Dimensionen: ", dim(train_data), "\n")
+cat("Validierungsdaten Dimensionen: ", dim(validation_data), "\n")
+cat("Testdaten Dimensionen: ", dim(test_data), "\n")
+```
+Erstellen eines linearen Models
+```{r}
+mod1 <- lm(Umsatz ~ as.factor(Warengruppe), train_data)
+mod2 <- lm(Umsatz ~ as.factor(Warengruppe) + as.factor(wochentag), train_data)
+mod3 <- lm(Umsatz ~ as.factor(Warengruppe) + as.factor(wochentag) + KielerWoche, train_data)
+mod4 <- lm(Umsatz ~ as.factor(Warengruppe) +  as.factor(wochentag) + KielerWoche + Temperatur, train_data)
+mod5 <- lm(Umsatz ~ as.factor(Warengruppe) + as.factor(wochentag) + KielerWoche + Temperatur + Windgeschwindigkeit, train_data)
+mod6 <- lm(Umsatz ~ as.factor(Warengruppe) +  as.factor(wochentag) + KielerWoche + Temperatur + Windgeschwindigkeit + Wettercode, train_data)
+mod7 <- lm(Umsatz ~ as.factor(Warengruppe) +  as.factor(wochentag) + KielerWoche + Temperatur + Windgeschwindigkeit + Wettercode + Feiertag, train_data)
+mod8 <- lm(Umsatz ~ as.factor(Warengruppe) +  as.factor(wochentag) + KielerWoche + Temperatur + Windgeschwindigkeit + Wettercode + Feiertag + Ferien, train_data)
+mod9 <- lm(Umsatz ~ as.factor(Warengruppe) +  as.factor(wochentag) + KielerWoche + Temperatur + Windgeschwindigkeit + Wettercode + Feiertag, train_data)
+mod10 <- lm(Umsatz ~ as.factor(Warengruppe) +  as.factor(wochentag) + KielerWoche + Temperatur + jahreszeit + Feiertag + Ferien, train_data)
+mod11 <- lm(Umsatz ~ as.factor(Warengruppe) +  as.factor(wochentag) + KielerWoche + Temperatur + jahreszeit + Feiertag + Ferien + jahreszeit * Temperatur, train_data)
+```
+
+```{r}
+summary(mod1)
+summary(mod2)
+summary(mod3)
+summary(mod4)
+summary(mod5)
+summary(mod6)
+summary(mod7)
+summary(mod8)
+summary(mod9)
+summary(mod10)
+summary(mod11)
+```
+```{r}
+rbind(glance(mod1), glance(mod2), glance(mod3), glance(mod4), glance(mod5), glance(mod5), glance(mod6), glance(mod7), glance(mod8), glance(mod9), glance(mod10), glance(mod11))
+```
+Ein p-Wert <0.05 sagt, dass das Feature Einfluss auf das Ergebnis hat. Ist er größer, ist das Feature nicht wichtig für unsere Regression.
+
+```{r}
+rbind(mae(train_data$Umsatz, predict(mod1)),
+      mae(train_data$Umsatz, predict(mod2)),
+      mae(train_data$Umsatz, predict(mod3)),
+      mae(train_data$Umsatz, predict(mod4)),
+      mae(train_data$Umsatz, predict(mod5)),
+      mae(train_data$Umsatz, predict(mod6)),
+      mae(train_data$Umsatz, predict(mod8)),
+      mae(train_data$Umsatz, predict(mod9)),
+      mae(train_data$Umsatz, predict(mod10)),
+      mae(train_data$Umsatz, predict(mod11)))
+```
+```{r}
+rbind(mae(test_data$Umsatz, predict(mod1, newdata=test_data)),
+      mae(test_data$Umsatz, predict(mod2, newdata=test_data)),
+      mae(test_data$Umsatz, predict(mod3, newdata=test_data)),
+      mae(test_data$Umsatz, predict(mod4, newdata=test_data)),
+      mae(test_data$Umsatz, predict(mod5, newdata=test_data)),
+      mae(test_data$Umsatz, predict(mod6, newdata=test_data)),
+      mae(test_data$Umsatz, predict(mod7, newdata=test_data)),
+      mae(test_data$Umsatz, predict(mod8, newdata=test_data)),
+      mae(test_data$Umsatz, predict(mod9, newdata=test_data)),
+      mae(test_data$Umsatz, predict(mod10, newdata=test_data)),
+      mae(test_data$Umsatz, predict(mod11, newdata=test_data)))
+```
+```{r}
+rbind(mape(test_data$Umsatz, predict(mod1, newdata=test_data)),
+      mape(test_data$Umsatz, predict(mod2, newdata=test_data)),
+      mape(test_data$Umsatz, predict(mod3, newdata=test_data)),
+      mape(test_data$Umsatz, predict(mod4, newdata=test_data)),
+      mape(test_data$Umsatz, predict(mod5, newdata=test_data)),
+      mape(test_data$Umsatz, predict(mod6, newdata=test_data)),
+      mape(test_data$Umsatz, predict(mod7, newdata=test_data)),
+      mape(test_data$Umsatz, predict(mod8, newdata=test_data)),
+      mape(test_data$Umsatz, predict(mod9, newdata=test_data)),
+      mape(test_data$Umsatz, predict(mod10, newdata=test_data)),
+      mape(test_data$Umsatz, predict(mod11, newdata=test_data)))
+```
+```{r}
+rbind(mape(train_data$Umsatz, predict(mod1)),
+      mape(train_data$Umsatz, predict(mod2)),
+      mape(train_data$Umsatz, predict(mod3)),
+      mape(train_data$Umsatz, predict(mod4)),
+      mape(train_data$Umsatz, predict(mod5)),
+      mape(train_data$Umsatz, predict(mod6)),
+      mape(train_data$Umsatz, predict(mod8)),
+      mape(train_data$Umsatz, predict(mod9)),
+      mape(train_data$Umsatz, predict(mod10)),
+      mape(train_data$Umsatz, predict(mod11)))
+```
+
+
+
+Nutzen des Models auf Validierungsdaten
+```{r}
+rbind(sqrt(mean((test_data$Umsatz - predict(mod1, newdata=test_data))^2)),
+      sqrt(mean((test_data$Umsatz - predict(mod2, newdata=test_data))^2)),
+      sqrt(mean((test_data$Umsatz - predict(mod3, newdata=test_data))^2)),
+      sqrt(mean((test_data$Umsatz - predict(mod4, newdata=test_data))^2)),
+      sqrt(mean((test_data$Umsatz - predict(mod5, newdata=test_data))^2)),
+      sqrt(mean((test_data$Umsatz - predict(mod6, newdata=test_data))^2)),
+      sqrt(mean((test_data$Umsatz - predict(mod7, newdata=test_data))^2)),
+      sqrt(mean((test_data$Umsatz - predict(mod8, newdata=test_data))^2)),
+      sqrt(mean((test_data$Umsatz - predict(mod9, newdata=test_data))^2)),
+      sqrt(mean((test_data$Umsatz - predict(mod10, newdata=test_data))^2)))
+```
+
+```{r}
+rbind(rmse(train_data$Umsatz, predict(mod1, newdata=train_data)),
+      rmse(train_data$Umsatz, predict(mod2, newdata=train_data)),
+      rmse(train_data$Umsatz, predict(mod3, newdata=train_data)),
+      rmse(train_data$Umsatz, predict(mod4, newdata=train_data)),
+      rmse(train_data$Umsatz, predict(mod5, newdata=train_data)),
+      rmse(train_data$Umsatz, predict(mod6, newdata=train_data)),
+      rmse(train_data$Umsatz, predict(mod7, newdata=train_data)),
+      rmse(train_data$Umsatz, predict(mod8, newdata=train_data)),
+      rmse(train_data$Umsatz, predict(mod9, newdata=train_data)),
+      rmse(train_data$Umsatz, predict(mod10, newdata=train_data)),
+      rmse(train_data$Umsatz, predict(mod11, newdata=train_data)))
+
+```
+
+

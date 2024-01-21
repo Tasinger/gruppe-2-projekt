@@ -2,6 +2,9 @@
 title: "R Notebook"
 output: html_notebook
 ---
+```{r}
+remove(list = ls())
+```
 
 ```{r}
 # Laden der Libraries
@@ -17,10 +20,6 @@ library(Metrics)
 data <- read.csv("../0_DataPreparation/preparedTrainData.csv")
 data <- data %>% arrange(Datum)
 
-```
-
-```{r}
-data_shuffled <- data %>% sample_frac(1)
 ```
 
 

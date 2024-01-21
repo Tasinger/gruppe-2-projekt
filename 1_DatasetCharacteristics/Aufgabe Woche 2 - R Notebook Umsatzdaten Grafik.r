@@ -5,7 +5,7 @@ library(ggplot2)
 library(dplyr)
 
 #Daten laden und warengruppen extrahieren
-umsatzdaten <- read.csv("umsatzdaten_gekuerzt.csv")
+umsatzdaten <- read.csv("0_DataPreparation/umsatzdaten_gekuerzt.csv")
 warengruppen <- unique(umsatzdaten$Warengruppe)
 
 #Spalte Tage hinzufügen
@@ -16,7 +16,7 @@ umsatzdaten$tage <- factor(weekdays(umsatzdaten$Datum), levels=c("Montag", "Dien
 gesamtumsatz_pro_tag <- umsatzdaten %>%
   group_by(tage) %>%
   summarize(Gesamtumsatz = sum(Umsatz),
-            n=n(), 
+            n=n(),
             mean=mean(Umsatz),
             sd=sd(Umsatz)) %>%
   mutate( se=sd/sqrt(n)) %>%
@@ -28,7 +28,7 @@ print(gesamtumsatz_pro_tag)
 balkendiagrammeinfach <- ggplot(gesamtumsatz_pro_tag, aes(x = tage, y = mean)) +
   geom_bar(stat = "identity", position = "dodge", fill="#800080")+
   geom_errorbar( aes(x=tage, ymin=mean-ic, ymax=mean+ic), width=0.4, colour="orange", alpha=0.9, size=1.5)+
-  labs(title = "Gesamtumsatz pro Tag für alle Warengruppen mit Konfidenzintervallen", x = "Wochentag", 
+  labs(title = "Gesamtumsatz pro Tag für alle Warengruppen mit Konfidenzintervallen", x = "Wochentag",
        y = "Gesamtumsatz")
 
 print(balkendiagrammeinfach)

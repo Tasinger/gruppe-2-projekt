@@ -11,10 +11,9 @@ output: html_document
 ##Informationen über: Datensatzübersicht, Fehlende Werte, Feature-Verteilungen, Korrelationen
 ```
 
-## R Markdown
 ```{r}
 # Erstellen einer Liste mit benötigten Bibliotheken
-pkgs <- c("readr", "dplyr", "lubridate", "ggplot2","DataExplorer")
+pkgs <- c("readr", "dplyr", "lubridate", "ggplot2","DataExplorer","skimr")
 
 # Laden der Bibliotheken und prüfen, ob sie installiert sind und gegebendenfalls installieren
 for (pkg in pkgs) {
@@ -26,25 +25,25 @@ for (pkg in pkgs) {
 ```
 
 ```{r}
-#Daten laden und warengruppen extrahieren
+#Daten laden und warengruppen extrahieren und anzeigen einer schnellen Datenübersicht der eingelesenen Daten mit skim
 umsatzdaten <- read.csv("0_DataPreparation/preparedTrainData.csv")
 warengruppen_train <- unique(umsatzdaten$Warengruppe)
 umsatzdaten$Datum <- as.Date(umsatzdaten$Datum)
 
+skim(umsatzdaten)
+
 ```
 
 ```{r}
-#Korrelastion
-#cor(umsatzdaten)
-##Dataexplorer zur Datenanalyse
-#create_report(umsatzdaten)
-#plot_correlation(umsatzdaten)
+# Fehlende Werten wurden bereits bei Punkt "0_DataPreparation" bereits durch andere Werte ersetzt, wodurch jetzt hier keine fehlenden Werte mehr ersetzt werden müssen. Dies wurde mit der VIM Funktion bereit im Preperation Skript grafisch geprüft. Und hier konnte man auch anhand der skim-Übersicht gut sehen, dass keine fehlenden Werte mehr im Datensatz vorhanden sind.
 ```
 
 ```{r}
-# Umsatz pro Tag für alle Warengruppen
+##Grafische Darstellung der Variable "Wochentag" mit Konfidenzintervall nach Warengruppe
+
+# Vorbereitung der Umsatzdaten nach Wochentag getrennt nach Warengruppe
 gesamtumsatz_pro_tag <- umsatzdaten %>%
-  group_by(wochentag) %>%
+  group_by(Warengruppe,wochentag) %>%
   summarise(Gesamtumsatz = sum(Umsatz),
             n=n(), 
             mean=mean(Umsatz),
@@ -52,16 +51,22 @@ gesamtumsatz_pro_tag <- umsatzdaten %>%
   mutate( se=sd/sqrt(n)) %>%
   mutate( ic=se * qt((1-0.05)/2 + .5, n-1))
 
-balkendiagramm_train <- ggplot(gesamtumsatz_pro_tag, aes(x = wochentag, y = mean)) +
-  geom_bar(stat = "identity", position = "dodge", fill="#800080")+
-  geom_errorbar( aes(x=wochentag, ymin=mean-ic, ymax=mean+ic), width=0.4, colour="orange", alpha=0.9, linewidth=1.5)+
-  labs(title = "Gesamtumsatz pro Tag für alle Warengruppen mit Konfidenzintervallen der Trainingsdaten", x = "Wochentag", y = "Gesamtumsatz")
+#Darstellen der Umsatzdaten nach Wochentag getrennt nach Warengruppe mit Konfidenzintervall
+balkendiagramm_wochentag <- ggplot(gesamtumsatz_pro_tag, aes(x = wochentag, y = mean)) + facet_wrap(~Warengruppe)+
+  geom_bar(stat = "identity", position = "dodge", fill="#800080", alpha=0.7)+
+  geom_errorbar( aes(x=wochentag, ymin=mean-ic, ymax=mean+ic), width=0.3, colour="orange", alpha=0.9, linewidth=1.0)+
+  labs(title = "Gesamtumsatz pro Tag je Warengruppe mit Konfidenzintervall", x = "Wochentag", y = "Gesamtumsatz")+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
-print(balkendiagramm_train)
+#Print des Balkendiagramms
+print(balkendiagramm_wochentag)
 
 ```
 
 ```{r}
+##Grafische Darstellung der Variable "Jahreszeit" mit Konfidenzintervall nach Warengruppe
+
+#Vorbereiten der Umsatzdaten nach Jahreszeit getrennt nach Warengruppe
 my_Warengruppe <- umsatzdaten %>%
  group_by(Warengruppe, jahreszeit) %>%
  summarise(
@@ -72,34 +77,48 @@ my_Warengruppe <- umsatzdaten %>%
  mutate( se=sd_Umsatz/sqrt(n)) %>%
  mutate( ic=se * qt((1-0.05)/2 + .5, n-1)) 
 
-
 head(my_Warengruppe, 200)
 
-#Konfidenzintervall
+print(my_Warengruppe)
+
+#Darstellen der Umsatzdaten nach Jahreszeit getrennt nach Warengruppe mit Konfidenzintervall 
 ggplot(my_Warengruppe) + facet_wrap(~Warengruppe) +
- geom_bar( aes(x=jahreszeit, y=mean_Umsatz), stat="identity", fill="#800080", alpha=0.5) +
- geom_errorbar( aes(x=jahreszeit, ymin=mean_Umsatz-ic, ymax=mean_Umsatz+ic), width=0.3, colour="orange", alpha=0.3, size=1.5) +
- ggtitle("Konfidenzintervall") + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+ geom_bar( aes(x=jahreszeit, y=mean_Umsatz), stat="identity",position = "dodge", fill="#800080", alpha=0.7) +
+ geom_errorbar( aes(x=jahreszeit, ymin=mean_Umsatz-ic, ymax=mean_Umsatz+ic), width=0.3, colour="orange", alpha=0.9, linewidth=1.0) +
+ labs(title = "Durchschnittlichtlicher Umsatz je Warengruppe nach Jahrenzeit mit Konfidenzintervall", x = "Jahreszeit", y = "Durchschnittlicher Umsatz", fill="Jahreszeit")  + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
+```{r}
+#Darstellung des Haupteffekts "Jahreszeit" in einem Balkendiagramm
+main_effect_jahreszeit <- my_Warengruppe %>%
+  group_by(mean_Umsatz, jahreszeit)
+
+print(main_effect_jahreszeit)
+
+balkendiagramm_effect <- ggplot(main_effect_jahreszeit, aes(x = jahreszeit, y = mean_Umsatz, fill = jahreszeit)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Main Effect Jahreszeit", x = "Jahreszeit", y = "Durchschnittlicher Umsatz", fill="Jahreszeit") +
+  scale_fill_brewer(palette = "Set2")
+
+# Diagramm "Main Effect Jahreszeit" anzeigen
+print(balkendiagramm_effect)
+
+```
 
 ```{r}
-#Umsatz pro Tag je Warengruppe Trainingsdaten
-gesamtumsatz_pro_tag_warengruppe <- umsatzdaten %>%
-  group_by(Warengruppe, wochentag) %>%
-  summarize(Gesamtumsatz = sum(Umsatz))
+#Feature-Verteilungen
 
-print(gesamtumsatz_pro_tag_warengruppe)
+```
 
-balkendiagramm <- ggplot(gesamtumsatz_pro_tag_warengruppe, aes(x = Warengruppe, y = Gesamtumsatz, fill = wochentag)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  labs(title = "Gesamtumsatz pro Tag und Warengruppe der Trainingsdaten", x = "Warengruppe", y = "Gesamtumsatz", fill="Wochentag") +
-  scale_fill_brewer(palette = "Set3")
+```{r}
+#Korrelationen anhand eines Teils der Daten, da andernfalls hier zu unübersichtlich 
+#Beispielplot anhand der Daten my_warengruppe
+plot_correlation(my_Warengruppe)
 
+# Grafische Darstellung der Korreletion für die für uns eingefügten bzw. als relevant aus dem Trainingsdatensatz erachteten Variablen - für noch mehr variablen zu unübersichtlich. 
+umsatzdaten_for_correlation <- umsatzdaten %>% select(c("Warengruppe","Umsatz","Bewoelkung","wochentag","jahreszeit","Temperatur","KielerWoche","Feiertag","Ferien"))
 
-# Diagramme anzeigen
-print(balkendiagramm)
-
+plot_correlation(umsatzdaten_for_correlation)
 
 ```
 

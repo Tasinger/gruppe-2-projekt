@@ -106,7 +106,7 @@ print(balkendiagramm_effect)
 ```
 
 ```{r}
-#Feature-Verteilungen
+#Feature-Verteilungen: mit der Funktion summary() eine übersichtliche statistische Zusammenfassung jedes Merkmals in den umsatzdaten  
 summary(umsatzdaten)
 
 ```

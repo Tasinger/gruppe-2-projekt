@@ -84,4 +84,9 @@ train_data$Ferien <- ifelse(is.na(train_data$Ferien), 0, 1)
 train_data$Wettercode <- na.locf(train_data$Wettercode, fromLast = TRUE, na.rm = FALSE)
 print(train_data)
 
+# Gruppieren der einzelnen Warengruppe nach Umsatz TODO
+grp_warengruppe = train_data %>% group_by(Warengruppe)  %>%
+  summarise(umsatz_gesamt = sum(Umsatz),
+            .groups = 'drop')
+
 # Ergebnis speichern

@@ -57,66 +57,32 @@ gesamtumsatz_pro_tag <- umsatzdaten %>%
   mutate( se=sd/sqrt(n)) %>%
   mutate( ic=se * qt((1-0.05)/2 + .5, n-1))
 
-print(gesamtumsatz_pro_tag_train)
+print(gesamtumsatz_pro)
 
-balkendiagramm_train <- ggplot(gesamtumsatz_pro_tag_train, aes(x = Tage, y = mean)) +
+balkendiagramm_train <- ggplot(gesamtumsatz_pro_tag, aes(x = Tage, y = mean)) +
   geom_bar(stat = "identity", position = "dodge", fill="#800080")+
   geom_errorbar( aes(x=Tage, ymin=mean-ic, ymax=mean+ic), width=0.4, colour="orange", alpha=0.9, linewidth=1.5)+
   labs(title = "Gesamtumsatz pro Tag für alle Warengruppen mit Konfidenzintervallen der Trainingsdaten", x = "Wochentag", y = "Gesamtumsatz")
 
 print(balkendiagramm_train)
 
-# Umsatz der Testdaten pro Tag für alle Warengruppen
-gesamtumsatz_pro_tag_test <- umsatzdaten_prep_test %>%
-  group_by(Tage) %>%
-  summarise(Gesamtumsatz = sum(Umsatz),
-            n=n(), 
-            mean=mean(Umsatz),
-            sd=sd(Umsatz)) %>%
-  mutate( se=sd/sqrt(n)) %>%
-  mutate( ic=se * qt((1-0.05)/2 + .5, n-1))
-
-print(gesamtumsatz_pro_tag_test)
-
-
-balkendiagramm_test <- ggplot(gesamtumsatz_pro_tag_test, aes(x = Tage, y = mean)) +
-  geom_bar(stat = "identity", position = "dodge", fill="#800080")+
-  geom_errorbar( aes(x=Tage, ymin=mean-ic, ymax=mean+ic), width=0.4, colour="orange", alpha=0.9, linewidth=1.5)+
-  labs(title = "Gesamtumsatz pro Tag für alle Warengruppen mit Konfidenzintervallen der Testdaten", x = "Wochentag", 
-       y = "Gesamtumsatz")
-
-print(balkendiagramm_test)
-
 
 #Umsatz pro Tag je Warengruppe Trainingsdaten
-gesamtumsatz_pro_tag_warengruppe_train <- umsatzdaten_prep_train %>%
+gesamtumsatz_pro_tag_warengruppe <- umsatzdaten %>%
   group_by(Warengruppe, Tage) %>%
   summarize(Gesamtumsatz = sum(Umsatz))
 
 print(gesamtumsatz_pro_tag_warengruppe_train)
 
-balkendiagramm_train_all <- ggplot(gesamtumsatz_pro_tag_warengruppe_train, aes(x = Warengruppe, y = Gesamtumsatz, fill = Tage)) +
+balkendiagramm <- ggplot(gesamtumsatz_pro_tag_warengruppe, aes(x = Warengruppe, y = Gesamtumsatz, fill = Tage)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs(title = "Gesamtumsatz pro Tag und Warengruppe der Trainingsdaten", x = "Warengruppe", y = "Gesamtumsatz", fill="Wochentag") +
   scale_fill_brewer(palette = "Set3")
 
-#Umsatz pro Tag je Warengruppe Testdateb
-gesamtumsatz_pro_tag_warengruppe_test <- umsatzdaten_prep_test %>%
-  group_by(Warengruppe, Tage) %>%
-  summarize(Gesamtumsatz = sum(Umsatz))
-
-print(gesamtumsatz_pro_tag_warengruppe_test)
-
-balkendiagramm_test_all <- ggplot(gesamtumsatz_pro_tag_warengruppe_test, aes(x = Warengruppe, y = Gesamtumsatz, fill = Tage)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  labs(title = "Gesamtumsatz pro Tag und Warengruppe der Testdaten", x = "Warengruppe", y = "Gesamtumsatz", fill="Wochentag") +
-  scale_fill_brewer(palette = "Set3")
-
-
 
 # Diagramme anzeigen
-print(balkendiagramm_train_all)
-print(balkendiagramm_train_all)
+print(balkendiagramm)
+
 
 ```
 

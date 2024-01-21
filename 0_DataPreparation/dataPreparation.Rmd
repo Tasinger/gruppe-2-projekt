@@ -3,14 +3,11 @@ title: "R Notebook"
 output: html_notebook
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
-
 Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
 
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
 
 When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
-
 The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
 
 LIBRARIES
@@ -164,4 +161,11 @@ train_data$Wettercode_labels <- cut(train_data$Wettercode, breaks = c(0,14,99), 
 test_data$Wettercode <- as.numeric(as.character(test_data$Wettercode))
 test_data$Wettercode_labels <- cut(test_data$Wettercode, breaks = c(0,14,99), labels=c("Trocken","RegenGewitter"), right=FALSE)
 ```
+
+
+```{r}
+write.csv(train_data, file="preparedTrainData.csv")
+write.csv(test_data, file="preparedTestData.csv")
+```
+
 

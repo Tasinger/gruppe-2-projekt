@@ -55,13 +55,39 @@ gesamtumsatz_pro_tag <- umsatzdaten %>%
 balkendiagramm_wochentag <- ggplot(gesamtumsatz_pro_tag, aes(x = wochentag, y = mean)) + facet_wrap(~Warengruppe)+
   geom_bar(stat = "identity", position = "dodge", fill="#800080", alpha=0.7)+
   geom_errorbar( aes(x=wochentag, ymin=mean-ic, ymax=mean+ic), width=0.3, colour="orange", alpha=0.9, linewidth=1.0)+
-  labs(title = "Gesamtumsatz pro Tag je Warengruppe mit Konfidenzintervall", x = "Wochentag", y = "Gesamtumsatz")+
+  labs(title = "Gesamtumsatz pro Wochentag je Warengruppe mit Konfidenzintervall", x = "Wochentag", y = "Gesamtumsatz")+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
 #Print des Balkendiagramms
 print(balkendiagramm_wochentag)
 
 ```
+
+```{r}
+##Grafische Darstellung der Variable "Ferien" mit Konfidenzintervall nach Warengruppe
+
+# Vorbereitung der Umsatzdaten gruppiert nach Ferien und Warengruppe
+umsatz_ferien <- umsatzdaten %>%
+  group_by(Warengruppe,Ferien) %>%
+  summarise(Gesamtumsatz = sum(Umsatz),
+            n=n(), 
+            mean=mean(Umsatz),
+            sd=sd(Umsatz)) %>%
+  mutate( se=sd/sqrt(n)) %>%
+  mutate( ic=se * qt((1-0.05)/2 + .5, n-1))
+
+#Darstellen der Umsatzdaten wenn Ferien sind oder nicht nach Warengruppe mit Konfidenzintervall
+balkendiagramm_ferien <- ggplot(umsatz_ferien, aes(x = Ferien, y = mean)) + facet_wrap(~Warengruppe)+
+  geom_bar(stat = "identity", position = "dodge", fill="#800080", alpha=0.7)+
+  geom_errorbar( aes(x=Ferien, ymin=mean-ic, ymax=mean+ic), width=0.3, colour="orange", alpha=0.9, linewidth=1.0)+
+  labs(title = "Umsätze in den Ferien je Warengruppe mit Konfidenzintervall", x = "Ferien", y = "Umsatz")+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+#Print des Balkendiagramms
+print(balkendiagramm_ferien)
+
+```
+
 
 ```{r}
 ##Grafische Darstellung der Variable "Jahreszeit" mit Konfidenzintervall nach Warengruppe

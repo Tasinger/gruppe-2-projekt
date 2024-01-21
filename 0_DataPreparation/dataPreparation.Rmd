@@ -168,4 +168,8 @@ write.csv(train_data, file="preparedTrainData.csv")
 write.csv(test_data, file="preparedTestData.csv")
 ```
 
+```{r}
+grp_warengruppe = test_data %>% arrange(Datum)
+```
+
 

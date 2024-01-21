@@ -130,7 +130,13 @@ print(plot)
 ```
 
 ```{r}
-train_data <- hotdeck(train_data, imp_var = FALSE)
+train_data <- train_data %>%
+  hotdeck(ord_var = 'Wettercode',  imp_var = FALSE)
+```
+
+```{r}
+train_data <- train_data %>%
+  hotdeck(ord_var = 'Temperatur',  imp_var = FALSE)
 ```
 
 ```{r}
@@ -140,26 +146,31 @@ print(plot)
 ```
 
 ```{r}
-test_data <- hotdeck(test_data, imp_var = FALSE)
+test_data <- test_data %>%
+   hotdeck(ord_var = 'Wettercode',  imp_var = FALSE)
+```
 
+```{r}
+test_data <- test_data %>%
+   hotdeck(ord_var = 'Temperatur',  imp_var = FALSE)
 ```
 
 Umwandeln der numerischen Variablen "Temperatur", "Windgeschwindigkeit" und "Wettercode" in Kategorien
 ```{r}
-train_data$Windgeschwindigkeit_labels <- cut(train_data$Windgeschwindigkeit, breaks = c(0,10.7,20.7,37), labels=c("Brise", "Wind","Sturm"), right=FALSE)
-test_data$Windgeschwindigkeit_labels <- cut(test_data$Windgeschwindigkeit, breaks = c(0,10.7,20.7,37), labels=c("Brise", "Wind","Sturm"), right=FALSE)
+train_data$Windgeschwindigkeit <- cut(train_data$Windgeschwindigkeit, breaks = c(0,10.7,20.7,37), labels=c("Brise", "Wind","Sturm"), right=FALSE)
+test_data$Windgeschwindigkeit <- cut(test_data$Windgeschwindigkeit, breaks = c(0,10.7,20.7,37), labels=c("Brise", "Wind","Sturm"), right=FALSE)
 
 train_data$Temperatur <- as.numeric(as.character(train_data$Temperatur))
-train_data$Temperatur_labels <- cut(train_data$Temperatur, breaks = c(-20,1,11,21,31,45), labels=c("eisig", "kalt", "moderat", "sommerlich", "heiß"), right=FALSE)
+train_data$Temperatur <- cut(train_data$Temperatur, breaks = c(-20,1,11,21,31,45), labels=c("eisig", "kalt", "moderat", "sommerlich", "heiß"), right=FALSE)
 
 test_data$Temperatur <- as.numeric(as.character(test_data$Temperatur))
-test_data$Temperatur_labels <- cut(test_data$Temperatur, breaks = c(-20,1,11,21,31,45), labels=c("eisig", "kalt", "moderat", "sommerlich", "heiß"), right=FALSE)
+test_data$Temperatur <- cut(test_data$Temperatur, breaks = c(-20,1,11,21,31,45), labels=c("eisig", "kalt", "moderat", "sommerlich", "heiß"), right=FALSE)
 
 train_data$Wettercode <- as.numeric(as.character(train_data$Wettercode))
-train_data$Wettercode_labels <- cut(train_data$Wettercode, breaks = c(0,14,99), labels=c("Trocken","RegenGewitter"), right=FALSE)
+train_data$Wettercode <- cut(train_data$Wettercode, breaks = c(0,14,99), labels=c("Trocken","RegenGewitter"), right=FALSE)
 
 test_data$Wettercode <- as.numeric(as.character(test_data$Wettercode))
-test_data$Wettercode_labels <- cut(test_data$Wettercode, breaks = c(0,14,99), labels=c("Trocken","RegenGewitter"), right=FALSE)
+test_data$Wettercode <- cut(test_data$Wettercode, breaks = c(0,14,99), labels=c("Trocken","RegenGewitter"), right=FALSE)
 ```
 
 

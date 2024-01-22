@@ -48,23 +48,15 @@ mod6 <- lm(Umsatz ~ as.factor(Warengruppe) +  as.factor(wochentag) + KielerWoche
 mod7 <- lm(Umsatz ~ as.factor(Warengruppe) +  as.factor(wochentag) + KielerWoche + Temperatur + Windgeschwindigkeit + Wettercode + Feiertag, train_data)
 mod8 <- lm(Umsatz ~ as.factor(Warengruppe) +  as.factor(wochentag) + KielerWoche + Temperatur + Windgeschwindigkeit + Wettercode + Feiertag + Ferien, train_data)
 mod9 <- lm(Umsatz ~ as.factor(Warengruppe) +  as.factor(wochentag) + KielerWoche + Temperatur + Windgeschwindigkeit + Wettercode + Feiertag, train_data)
-mod10 <- lm(Umsatz ~ as.factor(Warengruppe) +  as.factor(wochentag) + KielerWoche + Temperatur + jahreszeit + Feiertag + Ferien, train_data)
-mod11 <- lm(Umsatz ~ as.factor(Warengruppe) +  as.factor(wochentag) + KielerWoche + Temperatur + jahreszeit + Feiertag + Ferien + jahreszeit * Temperatur, train_data)
+mod10 <- lm(Umsatz ~ as.factor(Warengruppe) +  as.factor(wochentag) + Temperatur + jahreszeit + Feiertag + Ferien, train_data)
+mod11 <- lm(Umsatz ~ as.factor(Warengruppe) +  as.factor(wochentag) + Temperatur + jahreszeit + Feiertag + Ferien + jahreszeit * Temperatur, train_data)
 ```
 
 ```{r}
-summary(mod1)
-summary(mod2)
-summary(mod3)
-summary(mod4)
-summary(mod5)
-summary(mod6)
-summary(mod7)
-summary(mod8)
-summary(mod9)
 summary(mod10)
-summary(mod11)
 ```
+
+
 ```{r}
 rbind(glance(mod1), glance(mod2), glance(mod3), glance(mod4), glance(mod5), glance(mod5), glance(mod6), glance(mod7), glance(mod8), glance(mod9), glance(mod10), glance(mod11))
 ```

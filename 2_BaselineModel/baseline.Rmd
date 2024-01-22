@@ -54,6 +54,9 @@ mod11 <- lm(Umsatz ~ as.factor(Warengruppe) +  as.factor(wochentag) + Temperatur
 
 ```{r}
 summary(mod10)
+#sum <- summary(mod10)
+#modellgleichung <- formula(sum)
+#cat("Modellgleichung:", as.character(modellgleichung), "\n")
 ```
 
 
@@ -144,4 +147,7 @@ rbind(rmse(train_data$Umsatz, predict(mod1, newdata=train_data)),
 
 ```
 
+```{r}
+mape(test_data$Umsatz, predict(mod10, newdata=test_data))
+```
 

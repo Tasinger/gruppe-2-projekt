@@ -35,7 +35,7 @@ skim(umsatzdaten)
 ```
 
 ```{r}
-# Fehlende Werten wurden bereits bei Punkt "0_DataPreparation" bereits durch andere Werte ersetzt, wodurch jetzt hier keine fehlenden Werte mehr ersetzt werden müssen. Dies wurde mit der VIM Funktion bereit im Preperation Skript grafisch geprüft. Und hier konnte man auch anhand der skim-Übersicht gut sehen, dass keine fehlenden Werte mehr im Datensatz vorhanden sind.
+# Fehlende Werte wurden bereits bei Punkt "0_DataPreparation" bereits durch andere Werte ersetzt, wodurch jetzt hier keine fehlenden Werte mehr ersetzt werden müssen. Dies wurde mit der VIM Funktion bereit im Preperation Skript grafisch geprüft. Und hier konnte man auch anhand der skim-Übersicht gut sehen, dass keine fehlenden Werte mehr im Datensatz vorhanden sind.
 ```
 
 ```{r}

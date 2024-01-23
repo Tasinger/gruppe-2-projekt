@@ -9,13 +9,13 @@ remove(list = ls())
 Datenvorbereitung
 ```{r}
 data <- read.csv("../0_DataPreparation/preparedTrainData.csv")
-names(data)
+#names(data)
 data <- data %>% arrange(Datum)
 ```
 Aus Baseline weiß man, dass bestes Modell mit folgenden Features:
 mod10 <- lm(Umsatz ~ as.factor(Warengruppe) +  as.factor(wochentag) + KielerWoche + Temperatur + jahreszeit + Feiertag + Ferien, train_data)
 ```{r}
-features <- as_tibble(model.matrix(Umsatz ~ wochentag + jahreszeit + Temperatur + as.factor(Warengruppe) + KielerWoche + Feiertag + Ferien, data))
+features <- as_tibble(model.matrix(Umsatz ~ wochentag + jahreszeit + Temperatur + Warengruppe + KielerWoche + Feiertag + Ferien, data))
 names(features)
 ```
 
@@ -29,7 +29,7 @@ test_data = data <- read.csv("../0_DataPreparation/preparedTestData.csv")
 names(test_data)
 test_data <- test_data %>% arrange(Datum)
 
-test_features <- as_tibble(model.matrix(~wochentag + jahreszeit + Temperatur + as.factor(Warengruppe) + KielerWoche + Feiertag + Ferien + id, test_data))
+test_features <- as_tibble(model.matrix(~wochentag + jahreszeit + Temperatur + Warengruppe + KielerWoche + Feiertag + Ferien + id, test_data))
 names(test_features)
 ```
 
@@ -45,7 +45,7 @@ n_validation <- floor(0.20 * n_total)
 training_features <-
   prepared_data %>% select(-label) %>% slice(1:n_training)
 validation_features <-
-  prepared_data %>% select(-label) %>% slice((n_training + 1):(n_total))
+  prepared_data %>% slice((n_training + 1):(n_total))
 
 training_labels <-
   prepared_data %>% select(label) %>% slice(1:n_training)
@@ -70,9 +70,10 @@ dir.create(subdirectory)
 
 # Export of the prepared data to subdirectory
 write_csv(training_features, paste0(subdirectory, "/training_features.csv"))
-write_csv(validation_features, paste0(subdirectory, "/validation_features.csv"))
+write_csv(validation_features, paste0(subdirectory, "/validation_features_withlabel.csv"))
 write_csv(training_labels, paste0(subdirectory, "/training_labels.csv"))
 write_csv(validation_labels, paste0(subdirectory, "/validation_labels.csv"))
 write_csv(test_features, paste0(subdirectory, "/test_features.csv"))
+write_csv(prepared_data, paste0(subdirectory, "/validation_data.csv"))
 ```
 

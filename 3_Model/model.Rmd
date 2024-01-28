@@ -1,5 +1,5 @@
 ---
-title: "R Notebook"
+title: "Vorbereitung der Daten für neuronales Modell"
 output: html_notebook
 ---
 ```{r}
@@ -12,18 +12,21 @@ data <- read.csv("../0_DataPreparation/preparedTrainData.csv")
 #names(data)
 data <- data %>% arrange(Datum)
 ```
-Aus Baseline weiß man, dass bestes Modell mit folgenden Features:
+
+Aus Baseline-Modell weiß man, dass bestes Modell folgende Features hat:
 mod10 <- lm(Umsatz ~ as.factor(Warengruppe) +  as.factor(wochentag) + KielerWoche + Temperatur + jahreszeit + Feiertag + Ferien, train_data)
+Daher werden diese Features in der Variable features gespeichert
 ```{r}
 features <- as_tibble(model.matrix(Umsatz ~ wochentag + jahreszeit + Temperatur + Warengruppe + KielerWoche + Feiertag + Ferien, data))
 names(features)
 ```
-
+Das Label "Umsatz" wird erneut hinzugefügt und nur Werte ohne NaN hinzugefügt (sollte der Fall sein aus Data Preparation)
 ```{r}
 prepared_data <- tibble(label=data$Umsatz, features) %>%  # inclusion of the dependent variable ('label')
     filter(complete.cases(.)) # Handling of missing values (here: only keeping rows without missing values)
 ```
 
+Vorbereitung der Testdaten
 ```{r}
 test_data = data <- read.csv("../0_DataPreparation/preparedTestData.csv")
 names(test_data)
@@ -32,8 +35,7 @@ test_data <- test_data %>% arrange(Datum)
 test_features <- as_tibble(model.matrix(~wochentag + jahreszeit + Temperatur + Warengruppe + KielerWoche + Feiertag + Ferien + id, test_data))
 names(test_features)
 ```
-
-
+Werte zum Splitten der Daten (Training: 80%, Validierung: 20%)
 ```{r}
 # Calculate the number of rows for each dataset
 n_total <- nrow(prepared_data)
@@ -41,6 +43,7 @@ n_training <- floor(0.8 * n_total)
 n_validation <- floor(0.20 * n_total)
 ```
 
+Aufteilen der Daten in Training-Features, Validierungs-Features, Training-Label und Validierungs-Label
 ```{r}
 training_features <-
   prepared_data %>% select(-label) %>% slice(1:n_training)
@@ -53,6 +56,7 @@ validation_labels <-
   prepared_data %>% select(label) %>% slice((n_training + 1):(n_total))
 ```
 
+Erneutes Checken der Dimensionen
 ```{r}
 cat("Training features dimensions:", dim(training_features), "\n")
 cat("Validation features dimensions:",
@@ -62,7 +66,7 @@ cat("Training labels dimensions:", dim(training_labels), "\n")
 cat("Validation labels dimensions:", dim(validation_labels), "\n")
 
 ```
-
+Abspeichern der Daten in einem Unterverzeichnis "csv_data", um sie dann in Colab zu verwenden
 ```{r}
 # Create subdirectory for the csv files
 subdirectory <- "csv_data"
@@ -70,7 +74,7 @@ dir.create(subdirectory)
 
 # Export of the prepared data to subdirectory
 write_csv(training_features, paste0(subdirectory, "/training_features.csv"))
-write_csv(validation_features, paste0(subdirectory, "/validation_features_withlabel.csv"))
+write_csv(validation_features, paste0(subdirectory, "/validation_features.csv"))
 write_csv(training_labels, paste0(subdirectory, "/training_labels.csv"))
 write_csv(validation_labels, paste0(subdirectory, "/validation_labels.csv"))
 write_csv(test_features, paste0(subdirectory, "/test_features.csv"))

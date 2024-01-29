@@ -6,6 +6,20 @@ output: html_notebook
 remove(list = ls())
 ```
 
+```{r}
+# Laden der Libraries
+library(tidyverse)
+library(skimr)
+library(DataExplorer)
+library(dplyr)
+library(lubridate)
+library(readr)
+library(VIM)
+library(colorspace)
+library(grid)
+library(zoo)
+```
+
 Datenvorbereitung
 ```{r}
 data <- read.csv("../0_DataPreparation/preparedTrainData.csv")
@@ -17,7 +31,7 @@ Aus Baseline-Modell weiß man, dass bestes Modell folgende Features hat:
 mod10 <- lm(Umsatz ~ as.factor(Warengruppe) +  as.factor(wochentag) + KielerWoche + Temperatur + jahreszeit + Feiertag + Ferien, train_data)
 Daher werden diese Features in der Variable features gespeichert
 ```{r}
-features <- as_tibble(model.matrix(Umsatz ~ wochentag + jahreszeit + Temperatur + Warengruppe + KielerWoche + Feiertag + Ferien, data))
+features <- as_tibble(model.matrix(Umsatz ~ wochentag + jahreszeit + Temperatur + as.factor(Warengruppe) + KielerWoche + Feiertag + Ferien, data))
 names(features)
 ```
 Das Label "Umsatz" wird erneut hinzugefügt und nur Werte ohne NaN hinzugefügt (sollte der Fall sein aus Data Preparation)
@@ -32,7 +46,7 @@ test_data = data <- read.csv("../0_DataPreparation/preparedTestData.csv")
 names(test_data)
 test_data <- test_data %>% arrange(Datum)
 
-test_features <- as_tibble(model.matrix(~wochentag + jahreszeit + Temperatur + Warengruppe + KielerWoche + Feiertag + Ferien + id, test_data))
+test_features <- as_tibble(model.matrix(~wochentag + jahreszeit + Temperatur + as.factor(Warengruppe) + KielerWoche + Feiertag + Ferien + id, test_data))
 names(test_features)
 ```
 Werte zum Splitten der Daten (Training: 80%, Validierung: 20%)
@@ -47,8 +61,10 @@ Aufteilen der Daten in Training-Features, Validierungs-Features, Training-Label 
 ```{r}
 training_features <-
   prepared_data %>% select(-label) %>% slice(1:n_training)
-validation_features <-
+validation_data <-
   prepared_data %>% slice((n_training + 1):(n_total))
+validation_features <-
+  prepared_data %>% select(-label) %>% slice((n_training + 1):(n_total))
 
 training_labels <-
   prepared_data %>% select(label) %>% slice(1:n_training)
@@ -78,6 +94,6 @@ write_csv(validation_features, paste0(subdirectory, "/validation_features.csv"))
 write_csv(training_labels, paste0(subdirectory, "/training_labels.csv"))
 write_csv(validation_labels, paste0(subdirectory, "/validation_labels.csv"))
 write_csv(test_features, paste0(subdirectory, "/test_features.csv"))
-write_csv(prepared_data, paste0(subdirectory, "/validation_data.csv"))
+write_csv(validation_data, paste0(subdirectory, "/validation_data.csv"))
 ```
 
